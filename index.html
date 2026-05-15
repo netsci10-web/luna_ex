@@ -463,7 +463,7 @@
             { id: 'V37', lunaId: 'L99', name: '이나', lat: 18.6, lng: 5.3, diam: 3, types: ['volcanic', 'luna100'], desc: '형성된 지 얼마 되지 않은(젊은) D자 모양의 화산 가스 방출 구덩이(칼데라).' },
             { id: 'V38', name: '버트 계곡', lat: -21.0, lng: -9.0, diam: 50, types: ['volcanic'], desc: '직선 절벽 근처 버트 크레이터 옆의 검 모양 화산 계곡.' },
             { id: 'V39', name: '보데 계곡군', lat: 10.0, lng: -4.0, diam: 70, types: ['volcanic'], desc: '아펜니노 산맥 남쪽, 중앙의 만 근처에 있는 거미줄처럼 얽힌 복잡한 계곡망.' },
-            { id: 'V40', name: '술피키우스 갈루스 계곡군', lat: 21.0, lng: 10.0, diam: 90, types: ['volcanic'], desc: '맑은 바다 서쪽 가장자리를 따라 뻗어 있는 길고 평행한 단층 계곡들.' },
+            { id: 'V40', name: '술피키우스 갈루스 계곡군', lat: 21.0, lng: 10.0, diam: 90, types: ['volcanic'], desc: '맑은 바다 서쪽 가장자리를 따라 뻗어 있는 길고 평행 단층 계곡들.' },
             { id: 'V41', name: '코시 계곡', lat: 10.5, lng: 38.0, diam: 140, types: ['volcanic'], desc: '코시 절벽과 평행을 이루며 달리는 거대한 선형 화산 계곡.' },
             { id: 'V42', name: '플리니우스 계곡군', lat: 15.0, lng: 23.0, diam: 120, types: ['volcanic'], desc: '플리니우스 크레이터 북쪽 뚜렷한 단층 계곡들.' },
             { id: 'V43', name: '바데 계곡', lat: -45.9, lng: -76.2, diam: 203, types: ['volcanic'], desc: '동쪽의 바다 분지 형성 시 파편이 날아가며 만든 방사형 거대 계곡.' },
@@ -501,7 +501,7 @@
         let selectedFeatureId = null;
         let isZoomedOut = false;
         
-        const landerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width: 28px; height: 28px; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.8));">
+        const landerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="28" height="28" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.8));">
             <g fill="#000" stroke="#fbbf24" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="35,30 65,30 75,50 25,50" />
                 <polygon points="40,15 60,15 65,30 35,30" />
@@ -524,7 +524,33 @@
                 <line x1="40" y1="95" x2="60" y2="95" />
             </g>
         </svg>`;
-        const landerSvgDataUrl = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(landerSvg);
+
+        // Cesium(3D) 전용: 렌더링 오류(검은 사각형) 방지를 위해 filter 속성을 제거한 깨끗한 SVG 사용
+        const landerSvg3D = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="28" height="28">
+            <g fill="#000" stroke="#fbbf24" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="35,30 65,30 75,50 25,50" />
+                <polygon points="40,15 60,15 65,30 35,30" />
+                <line x1="35" y1="30" x2="50" y2="50" />
+                <line x1="65" y1="30" x2="50" y2="50" />
+                <line x1="50" y1="15" x2="50" y2="50" />
+                <rect x="25" y="55" width="50" height="20" />
+                <line x1="30" y1="50" x2="30" y2="55" />
+                <line x1="70" y1="50" x2="70" y2="55" />
+                <line x1="50" y1="50" x2="50" y2="55" />
+                <line x1="25" y1="35" x2="15" y2="35" />
+                <polygon points="15,30 5,30 5,40 15,40" />
+                <line x1="75" y1="35" x2="85" y2="35" />
+                <polygon points="85,30 95,30 95,40 85,40" />
+                <line x1="35" y1="75" x2="20" y2="95" />
+                <line x1="10" y1="95" x2="30" y2="95" />
+                <line x1="65" y1="75" x2="80" y2="95" />
+                <line x1="70" y1="95" x2="90" y2="95" />
+                <line x1="50" y1="75" x2="50" y2="95" />
+                <line x1="40" y1="95" x2="60" y2="95" />
+            </g>
+        </svg>`;
+        // Base64로 인코딩하여 호환성 문제 해결
+        const landerSvgDataUrl = "data:image/svg+xml;base64," + btoa(landerSvg3D);
 
         function initMap() {
             // --- 2D Map (확대 수준을 8.1로 제한) ---
@@ -557,7 +583,7 @@
                 map3D.scene.skyBox.show = false;
                 map3D.scene.backgroundColor = Cesium.Color.BLACK;
                 map3D.camera.percentageChanged = 0.02; 
-                map3D.scene.screenSpaceCameraController.minimumZoomDistance = 130000; // 카메라 접근 제한을 상향하여 줌 8.1에 맞춤
+                map3D.scene.screenSpaceCameraController.minimumZoomDistance = 130000; 
                 
                 // 3D 클릭 로직
                 const handler = new Cesium.ScreenSpaceEventHandler(map3D.scene.canvas);
@@ -687,8 +713,11 @@
             const bounds = map2D.getBounds();
             
             labelMarkers2D.forEach(item => {
-                // 화면 밖의 마커는 아예 계산에서 제외 (성능 향상)
-                if (!bounds.contains(item.featureLatLng)) {
+                // 선택된 카테고리에 속하는지 확인
+                const isVisibleCategory = (currentType === 'luna100' ? item.feature.lunaId : (currentType === 'all' || item.feature.types.includes(currentType)));
+
+                // 화면 밖의 마커이거나 카테고리에 맞지 않으면 계산에서 제외하고 숨김
+                if (!isVisibleCategory || !bounds.contains(item.featureLatLng)) {
                     map2D.removeLayer(item.marker);
                     return;
                 }
@@ -738,6 +767,16 @@
             const boxes = [];
             
             cesiumMarkers.forEach(item => {
+                // 선택된 카테고리에 속하는지 확인
+                const isVisibleCategory = (currentType === 'luna100' ? item.feature.lunaId : (currentType === 'all' || item.feature.types.includes(currentType)));
+
+                // 카테고리에 맞지 않으면 숨김
+                if (!isVisibleCategory) {
+                    item.pointEntity.show = false;
+                    item.nameEntity.show = false;
+                    return;
+                }
+
                 const pos = Cesium.SceneTransforms.wgs84ToWindowCoordinates(map3D.scene, item.cartesian);
                 
                 // 뒷면이거나 카메라 밖에 있을 경우
@@ -861,6 +900,8 @@
                 document.getElementById('search-input').value = ''; document.getElementById('sort-select').value = 'type';
                 btns.forEach(b => b.classList.toggle('active', b.getAttribute('data-type') === 'all'));
                 renderList();
+                update2DDeclutter(); // 초기화 시 마커 다시 그리기
+                if (map3D) update3DDeclutter();
                 // 3D의 경우 달이 화면에 꽉 차게 보이도록 줌 레벨을 3.5로, 2D는 1.5로 넓게 설정
                 if (is3D) flyTo3D(0, 0, 3.5); else map2D.flyTo([0, 0], 1.5, { duration: 1.5 });
             };
@@ -876,6 +917,8 @@
                 document.getElementById('search-input').value = '';
                 if (currentType !== 'luna100') { currentSort = 'type'; document.getElementById('sort-select').value = 'type'; }
                 renderList();
+                update2DDeclutter(); // 카테고리 변경 시 마커 필터링 업데이트
+                if (map3D) update3DDeclutter();
             }));
         }
 
@@ -915,20 +958,104 @@
             });
         }
 
+        // --- 깜빡임 애니메이션 처리를 위한 전역 변수들 ---
+        let blinkTimeoutId = null;
+        let blinkIntervalId = null;
+        let blinkEntity2D = null;
+        let blinkEntity3D = null;
+
+        // 실행 중인 깜빡임 타이머와 객체들을 초기화하는 함수
+        function clearBlinkingCircle() {
+            if (blinkTimeoutId) { clearTimeout(blinkTimeoutId); blinkTimeoutId = null; }
+            if (blinkIntervalId) { clearInterval(blinkIntervalId); blinkIntervalId = null; }
+            if (blinkEntity2D && map2D) { 
+                map2D.removeLayer(blinkEntity2D); 
+                blinkEntity2D = null; 
+            }
+            if (blinkEntity3D && map3D) { 
+                map3D.entities.remove(blinkEntity3D); 
+                blinkEntity3D = null; 
+            }
+        }
+
+        // 화면에 파란색 원을 생성하고 2번 깜빡이는 함수
+        function showBlinkingCircle(feature) {
+            clearBlinkingCircle(); // 혹시 남아있는 애니메이션 정리
+            
+            const actualRadius = (feature.diam || 10) * 1000 / 2;
+            const radiusMeters = Math.max(actualRadius, 15000); // 2D와 3D 동일하게 최소 15km 반경 적용
+
+            if (is3D && map3D) {
+                blinkEntity3D = map3D.entities.add({
+                    position: Cesium.Cartesian3.fromDegrees(feature.lng, feature.lat),
+                    ellipse: {
+                        semiMinorAxis: radiusMeters,
+                        semiMajorAxis: radiusMeters,
+                        material: Cesium.Color.DODGERBLUE.withAlpha(0.5),
+                        outline: true,
+                        outlineColor: Cesium.Color.DODGERBLUE,
+                        outlineWidth: 4,
+                        height: 5000 // 3D 지형에 파묻히지 않도록 적절한 상공에 띄움
+                    }
+                });
+
+                let toggles = 0;
+                blinkIntervalId = setInterval(() => {
+                    toggles++;
+                    if(blinkEntity3D) blinkEntity3D.show = (toggles % 2 === 0);
+                    // 1: 숨김, 2: 표시, 3: 숨김, 4: 표시, 5: 완전삭제 (총 2회 깜빡임)
+                    if (toggles >= 5) {
+                        clearBlinkingCircle();
+                    }
+                }, 400);
+
+            } else if (!is3D && map2D) {
+                blinkEntity2D = L.circle([feature.lat, feature.lng], {
+                    color: '#1e90ff',
+                    fillColor: '#1e90ff',
+                    fillOpacity: 0.5,
+                    radius: radiusMeters,
+                    weight: 3
+                }).addTo(map2D);
+
+                let toggles = 0;
+                blinkIntervalId = setInterval(() => {
+                    toggles++;
+                    if (blinkEntity2D) {
+                        if (toggles % 2 === 0) {
+                            map2D.addLayer(blinkEntity2D);
+                        } else {
+                            map2D.removeLayer(blinkEntity2D);
+                        }
+                    }
+                    if (toggles >= 5) {
+                        clearBlinkingCircle();
+                    }
+                }, 400);
+            }
+        }
+
         function selectFeature(feature, updateMap = false) {
             let element = document.getElementById(`item-${feature.id}`);
             
+            // 검색된 상태에서 리스트에 대상이 없을 경우 전체 리스트로 초기화
             if (!element && updateMap) {
                 currentType = 'all'; searchQuery = ''; renderList();
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                 document.querySelector('.nav-btn[data-type="all"]').classList.add('active');
                 element = document.getElementById(`item-${feature.id}`);
+                update2DDeclutter(); // 전체 리스트 초기화 시 마커도 전체 표시
+                if (map3D) update3DDeclutter();
             }
             
             const isAlreadySelected = (selectedFeatureId === feature.id);
 
+            // 리스트 하이라이트 활성화
             document.querySelectorAll('.feature-item').forEach(el => el.classList.remove('active'));
             if (element) { element.classList.add('active'); element.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+
+            // 다른 지형을 클릭하거나 다시 클릭할 때 기존 깜빡임은 즉시 중지
+            clearBlinkingCircle();
 
             if (isAlreadySelected && updateMap) {
                 isZoomedOut = !isZoomedOut;
@@ -939,21 +1066,36 @@
 
             if (updateMap) {
                 let targetZoom;
+                let willBlink = false;
+
                 if (isZoomedOut) {
-                    targetZoom = is3D ? 3.5 : 1.5; // 넓게 보기 시 대상이 가운데 오면서 줌 아웃
+                    targetZoom = is3D ? 3.5 : 1.5; 
+                    willBlink = true; // 돌아갈 때(Zoom Out) 깜빡이도록 예약
                 } else {
                     targetZoom = 5.0;
                     if (feature.types && feature.types.includes('lander')) {
-                        targetZoom = 8.1; // 착륙선은 가깝게
+                        targetZoom = 8.1; 
                     } else if (feature.diam) {
                         targetZoom = Math.max(1.8, Math.min(13.0 - Math.log2(feature.diam), 8.1));
                     }
                 }
                 
-                if (is3D) flyTo3D(feature.lat, feature.lng, targetZoom);
-                else map2D.flyTo([feature.lat, feature.lng], targetZoom, { animate: true, duration: 1.5 });
+                // 지도 카메라 애니메이션
+                if (is3D) {
+                    flyTo3D(feature.lat, feature.lng, targetZoom);
+                } else {
+                    map2D.flyTo([feature.lat, feature.lng], targetZoom, { animate: true, duration: 1.5 });
+                }
+
+                // 줌 아웃 모드라면, 애니메이션(1.5초)이 끝난 후 깜빡임 실행
+                if (willBlink) {
+                    blinkTimeoutId = setTimeout(() => {
+                        showBlinkingCircle(feature);
+                    }, 1700); // 1.7초 뒤 깜빡임 시작
+                }
             }
         }
+        
         document.addEventListener('DOMContentLoaded', initMap);
     </script>
 </body>
